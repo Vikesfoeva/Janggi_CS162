@@ -128,19 +128,29 @@ class JanggiGame():
         """
         """
         source_col = source[0]
-        source_row = source[1:]
+        source_row = int(source[1:])
 
         if self.space_open(source_col, source_row):
             # if the source is a free space, this is not a valid move
             return False
 
+        if self._game_state is not None:
+            # The game has ended, no more valid moves!
+            return False
+
         destination_col = destination[0]
-        destination_row = destination[1:]
+        destination_row = int(destination[1:])
 
         source_square = self._board[source_col][source_row]
         destination_square = self._board[destination_col][destination_row]
 
-        # Return False because the source is not
+        if destination_square is not None:
+            if source_square.get_owner() == destination_square.get_owner():
+                # The pieces on the source and destination squares are owned by the same player
+                # You can't capture your own piece, it's poor battle tactics!
+                return False
+
+        return True
 
     def space_open(self, col, row):
         """Checks an input coordinator to determine if a space is open"""
@@ -282,8 +292,7 @@ class General(GamePiece):
 game = JanggiGame()
 
 game.print_board()
-game.make_move('c1', 'e10')
-print(game.space_open("a", 2))
+print(game.make_move('c1', 'e10'))
 # move_result = game.make_move('c1', 'e3') #should be False because it's not Red's turn
 # move_result = game.make_move('a7,'b7') #should return True
 # blue_in_check = game.is_in_check('blue') #should return False
