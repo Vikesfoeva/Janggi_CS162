@@ -54,7 +54,8 @@
 
 
 def print_error(message):
-    """A function to print out error messages to the console"""
+    """A function to print out error messages to the console.  We use this function so that only 1 line needs
+    to be commented away to prevent console output"""
     print(message)
 
 
@@ -62,7 +63,11 @@ class JanggiGame():
     """Builds the board and contains the methods that help the board to function"""
 
     def __init__(self):
-        """Creates the board and the game"""
+        """Creates the board and the game.  The board is defined by nested dictionaries.  The first level is an entry
+        for each row (a, b, c etc) and then within each row the columns for that one.  This board is prebuilt in the class
+        so that it is built consistently.  We are passing False to the various game piece child classes to create a red
+          piece and True to create a blue piece.  We also are storing the game_state here & also whose turn it
+          currently is."""
         self._game_state = None
         self._blue_turn = True
         self._board = {
@@ -168,13 +173,19 @@ class JanggiGame():
         }
 
     def get_game_state(self):
-        """Returns the state of the game as UNFINISHED or shows the victor"""
+        """Returns the state of the game as UNFINISHED or shows the victor.  None is used to old the unfished state
+        for ease of referencing in the program.  If none though, we will return UNFINISHED"""
         if self._game_state is None:
             return "UNFINISHED"
         return self._game_state
 
     def is_in_check(self, player):
-        """Intakes a player as either red or blue and returns if that player is n check"""
+        """Intakes a player as either red or blue and returns if that player is n check.  To perform this, we need need
+        to iterate through a player's game pieces and see if any of them have valid moves that would place them on the
+        opponent's general.  For example, if there is a solidrer being checked, we would want to check all of the potential
+        moves for that soldier and see if any of them wind up placing them on the square as the general.  If that is true
+        and the general also then does not have any moves that put them in a spot where they are not in check, then the
+        game is now checkmate."""
 
         if type(player) != str:
             return False
@@ -190,12 +201,15 @@ class JanggiGame():
 
     def make_move(self, source, destination):
         """
-        Allows a move to occur and outlines the logic to ensure that said move is valid
+        Allows a move to occur and outlines the logic to ensure that said move is valid.  This function performs several
+        checks to ensure that players are moving valid pieces on their turn, ensures they are not trying to capture their
+        own pieces, calls appropiate methods to ensure they are making the proper move for the piece they selected.
         """
         if source == 'pass':
             self._blue_turn = not self._blue_turn
             return True
 
+        # Break down the source square algebraic notation into coordinates
         source_col = source[0]
         source_row = int(source[1:])
 
@@ -207,6 +221,7 @@ class JanggiGame():
             # The game has ended, no more valid moves!
             return False
 
+        # Break down the destination square algebraic notation into coordinates
         destination_col = destination[0]
         destination_row = int(destination[1:])
 
@@ -236,13 +251,16 @@ class JanggiGame():
         return True
 
     def space_open(self, col, row):
-        """Checks an input coordinator to determine if a space is open"""
+        """Checks an input coordinator to determine if a space is open.  This method is called by the make_move method
+        and relies on the coordiaate breakdown that is performed in the make_move method."""
         if self._board[col][row] is None:
             return True
         return False
 
     def print_board(self):
-        """Prints out the board into the terminal"""
+        """Prints out the board into the terminal.  This is designed to help the user visualize board after a a set of
+        moves has taken place.  This method relies on the get_name() method of each piece's class to print out what
+        that particular piece is.  That method on those pieces is just used to help track this board visualization."""
         for board_row in range(1, 1 + len(self._board['a'])):
             row = []
             for board_col in self._board.keys():
@@ -269,9 +287,10 @@ class JanggiGame():
 
 
 class GamePiece():
-    """A parent class to create game pieces"""
+    """A parent class to create game pieces.  This class initializes the information that is consistent across all
+    types of game poieces"""
     def __init__(self, owner_blue):
-        """Defines the parent class"""
+        """Defines the parent class and attributes used across all pieces."""
         self._is_blue = owner_blue
         self._captured = False
 
@@ -284,10 +303,12 @@ class GamePiece():
         return self._captured
 
     def get_owner(self):
+        """Returns the boolean of whether or not this is a blue game piece"""
         return self._is_blue
 
     def col_difference(self, col1, col2):
-        """Accepts two different columns listed by letter and returns how many columns are moved to traverse"""
+        """Accepts two different columns listed by letter and returns how many columns are moved to traverse.  This
+        method is used when determining if moves are valid"""
         layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
         col1 = layout.index(col1)
         col2 = layout.index(col2)
@@ -297,10 +318,11 @@ class GamePiece():
 class Chariot(GamePiece):
     """Outlines the Chariot Game Piece"""
     def check_valid_moves(self, input_move):
-        """Checks if the input move is valid"""
+        """Checks if the input move is valid and returns True / False based on that."""
         pass
 
     def get_name(self):
+        """Prints out the game piece based on who the owner is"""
         if self.get_owner():
             return "Blue Chariot"
         return "Red Chariot"
@@ -352,7 +374,7 @@ class Soldier(GamePiece):
 class Elephant(GamePiece):
     """Outlines the Elephant Game Piece"""
     def check_valid_moves(self, input_move):
-        """Checks if the input move is valid"""
+        """Checks if the input move is valid and returns True / False based on that."""
         pass
 
     def get_name(self):
@@ -365,7 +387,7 @@ class Elephant(GamePiece):
 class Cannon(GamePiece):
     """Outlines the Cannon Game Piece"""
     def check_valid_moves(self, input_move):
-        """Checks if the input move is valid"""
+        """Checks if the input move is valid and returns True / False based on that."""
         pass
 
     def get_name(self):
@@ -378,7 +400,7 @@ class Cannon(GamePiece):
 class Horse(GamePiece):
     """Outlines the Horse Game Piece"""
     def check_valid_moves(self, input_move):
-        """Checks if the input move is valid"""
+        """Checks if the input move is valid and returns True / False based on that."""
         pass
 
     def get_name(self):
@@ -395,7 +417,7 @@ class Guard(GamePiece):
         pass
 
     def get_name(self):
-        """Returns the name of the game piece for printing the board"""
+        """Checks if the input move is valid and returns True / False based on that."""
         if self.get_owner():
             return "Blue Guard"
         return "Red Guard"
@@ -432,38 +454,38 @@ class General(GamePiece):
             return "Blue General"
         return "Red General"
 
-# Basic Tests
-game = JanggiGame()
-
-game.print_board()
-
-# Move a general around
-game.make_move('e9', 'e10')
-game.make_move('pass', 'pass')
-game.make_move('e10', 'e9')
-game.make_move('pass', 'pass')
-game.make_move('e9', 'd8')
-game.make_move('pass', 'pass')
-game.make_move('d8', 'c8')
-# Move a solider around
+# # Basic Tests
+# game = JanggiGame()
+#
+# game.print_board()
+#
+# # Move a general around
+# game.make_move('e9', 'e10')
 # game.make_move('pass', 'pass')
-# game.make_move('c4', 'c5')
+# game.make_move('e10', 'e9')
 # game.make_move('pass', 'pass')
-# game.make_move('c5', 'c6')
+# game.make_move('e9', 'd8')
 # game.make_move('pass', 'pass')
-# game.make_move('c6', 'c7')
-# game.make_move('pass', 'pass')
-# game.make_move('c7', 'd7')
-# game.make_move('pass', 'pass')
-# game.make_move('d7', 'd8')
-# game.make_move('pass', 'pass')
-# game.make_move('d8', 'e9')
-# game.make_move('pass', 'pass')
-# game.make_move('e9', 'f10')
-# game.make_move('pass', 'pass')
-# game.make_move('f10', 'g10')
-print()
-game.print_board()
+# game.make_move('d8', 'c8')
+# # Move a solider around
+# # game.make_move('pass', 'pass')
+# # game.make_move('c4', 'c5')
+# # game.make_move('pass', 'pass')
+# # game.make_move('c5', 'c6')
+# # game.make_move('pass', 'pass')
+# # game.make_move('c6', 'c7')
+# # game.make_move('pass', 'pass')
+# # game.make_move('c7', 'd7')
+# # game.make_move('pass', 'pass')
+# # game.make_move('d7', 'd8')
+# # game.make_move('pass', 'pass')
+# # game.make_move('d8', 'e9')
+# # game.make_move('pass', 'pass')
+# # game.make_move('e9', 'f10')
+# # game.make_move('pass', 'pass')
+# # game.make_move('f10', 'g10')
+# print()
+# game.print_board()
 # move_result = game.make_move('c1', 'e3') #should be False because it's not Red's turn
 # move_result = game.make_move('a7,'b7') #should return True
 # blue_in_check = game.is_in_check('blue') #should return False
