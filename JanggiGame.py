@@ -56,7 +56,7 @@
 def print_error(message):
     """A function to print out error messages to the console.  We use this function so that only 1 line needs
     to be commented away to prevent console output"""
-    print(message)
+    #print(message)
 
 
 class JanggiGame():
