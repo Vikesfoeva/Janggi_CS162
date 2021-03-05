@@ -565,7 +565,7 @@ class Horse(GamePiece):
         # col_move or row_move must be 2 and the other must be 1
         crit1 = abs(col_move) == 2 and abs(row_move) == 1
         crit2 = abs(col_move) == 1 and abs(row_move) == 2
-        if crit1 and crit2:
+        if not crit1 and not crit2:
             return False
 
         # Check if the vertical move is blocked
@@ -667,6 +667,10 @@ class General(GamePiece):
 # game.make_move("c4","d4")
 # game.print_board()
 # game.make_move("d8","c6")
+# game.print_board()
+# game.make_move("d8","d8")
+# game.print_board()
+# game.make_move("d3","d6")
 # game.print_board()
 
 # game.make_move("c10","d8")
