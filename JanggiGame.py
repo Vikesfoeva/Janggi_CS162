@@ -71,6 +71,8 @@ class JanggiGame():
           currently is."""
         self._game_state = None
         self._blue_turn = True
+        self._blue_gen = 'e7'
+        self._red_gen = 'e2'
         self._board = {
             'a': {
                 1: Chariot(False),
@@ -172,6 +174,22 @@ class JanggiGame():
                 9: None,
                 10: Chariot(True)}
         }
+
+    def get_blue_gen(self):
+        """Returns the location of the blue general"""
+        return self._blue_gen
+
+    def get_red_gen(self):
+        """Returns the location the red general"""
+        return self._red_gen
+
+    def set_blue_gen(self, square):
+        """Updates the location of the blue general"""
+        self._blue_gen = square
+
+    def set_red_gen(self, square):
+        """Updates the location of the red general"""
+        self._red_gen = square
 
     def get_game_state(self):
         """Returns the state of the game as UNFINISHED or shows the victor.  None is used to old the unfished state
@@ -674,6 +692,14 @@ class General(GamePiece):
         # Checks to see if the diagonal we are moving on is valid, not all are
         if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
             return False
+
+        general_source = source_col + str(source_row)
+        general_destination = destination_col + str(destination_row)
+
+        if game_board.get_blue_gen() == general_source:
+            game_board.set_blue_gen() == general_destination
+        elif game_board.get_red_gen() == general_source:
+            game_board.set_red_gen() == general_destination
 
         return True
 
