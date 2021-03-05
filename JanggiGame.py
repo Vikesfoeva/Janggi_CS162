@@ -205,7 +205,7 @@ class JanggiGame():
         moves for that soldier and see if any of them wind up placing them on the square as the general.  If that is true
         and the general also then does not have any moves that put them in a spot where they are not in check, then the
         game is now checkmate."""
-
+        print('Starting the check now', player)
         if type(player) != str:
             return False
 
