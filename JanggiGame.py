@@ -71,7 +71,7 @@ class JanggiGame():
           currently is."""
         self._game_state = None
         self._blue_turn = True
-        self._blue_gen = 'e7'
+        self._blue_gen = 'e9'
         self._red_gen = 'e2'
         self._board = {
             'a': {
@@ -298,6 +298,12 @@ class JanggiGame():
             self._board[destination_col][destination_row] = source_square
             self._board[source_col][source_row] = None
             self._blue_turn = not self._blue_turn
+
+            if self._blue_turn:
+                self.is_in_check('red')
+            else:
+                self.is_in_check('blue')
+
             return True
 
         return False
@@ -817,35 +823,59 @@ class General(GamePiece):
 
 # # Basic Tests
 # game = JanggiGame()
-# game.make_move("c7", "c6")
+# game.make_move('e9', 'e8')
 # game.print_board()
-# game.make_move("c1", "d3")
+
+# game.make_move("c7","c6")
 # game.print_board()
-# game.make_move("b10", "d7")
+# game.make_move("c1","d3")
 # game.print_board()
-# game.make_move("b3", "e3")
+# game.make_move("b10","d7")
 # game.print_board()
-# game.make_move("c10", "d8")
+# game.make_move("b3","e3")
 # game.print_board()
-# game.make_move("h1", "g3")
+# game.make_move("c10","d8")
 # game.print_board()
-# game.make_move("e7", "e6")
+# game.make_move("h1","g3")
 # game.print_board()
-# game.make_move("e3", "e6")
+# game.make_move("e7","e6")
 # game.print_board()
-# game.make_move("h8", "c8")
+# game.make_move("e3","e6")
 # game.print_board()
-# game.make_move("d3", "e5")
+# print("Check red in check:", game.is_in_check('red'))
+# print("Check blue in check:", game.is_in_check('blue'))
+# game.make_move("h8","c8")
 # game.print_board()
-# game.make_move("c8", "c4")
+# game.make_move("d3","e5")
 # game.print_board()
-# game.make_move("e5", "c4")
+# game.make_move("c8","c4")
 # game.print_board()
-# game.is_in_check('blue')
+# print("Check red in check:", game.is_in_check('red'))
+# print("Check blue in check:", game.is_in_check('blue'))
+# game.make_move("e5","c4")
+# game.print_board()
+# game.make_move("i10","i8")
+# game.print_board()
+# game.make_move("g4","f4")
+# game.print_board()
+# game.make_move("i8","f8")
+# game.print_board()
+# game.make_move("g3","h5")
+# game.print_board()
+# game.make_move("h10","g8")
+# game.print_board()
+# game.make_move("e6","e3")
+# game.print_board()
+# print("Check red in check:", game.is_in_check('red'))
+# print("Check blue in check:", game.is_in_check('blue'))
+# game.make_move("e9","d9")
+# game.print_board()
+# print("Check red in check:", game.is_in_check('red'))
+# print("Check blue in check:", game.is_in_check('blue'))
 # game.make_move('c7', 'b7')
 # game.make_move('p', 'p')
 # game.make_move('b8', 'b4')
-#
+# #
 # game.print_board()
 # game.make_move("c10","d8")
 # game.print_board()
