@@ -523,7 +523,7 @@ class Elephant(GamePiece):
     """Outlines the Elephant Game Piece"""
     def check_valid_moves(self, input_move):
         """Checks if the input move is valid and returns True / False based on that."""
-        pass
+        return True
 
     def get_name(self):
         """Returns the name of the game piece for printing the board"""
@@ -534,9 +534,9 @@ class Elephant(GamePiece):
 
 class Cannon(GamePiece):
     """Outlines the Cannon Game Piece"""
-    def check_valid_moves(self, input_move):
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """Checks if the input move is valid and returns True / False based on that."""
-        pass
+        return True
 
     def get_name(self):
         """Returns the name of the game piece for printing the board"""
@@ -547,9 +547,9 @@ class Cannon(GamePiece):
 
 class Horse(GamePiece):
     """Outlines the Horse Game Piece"""
-    def check_valid_moves(self, input_move):
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """Checks if the input move is valid and returns True / False based on that."""
-        pass
+        return True
 
     def get_name(self):
         """Returns the name of the game piece for printing the board"""
