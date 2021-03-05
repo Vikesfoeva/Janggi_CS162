@@ -257,8 +257,9 @@ class JanggiGame():
             self._board[destination_col][destination_row] = source_square
             self._board[source_col][source_row] = None
             self._blue_turn = not self._blue_turn
+            return True
 
-        return True
+        return False
 
     def space_open(self, col, row):
         """Checks an input coordinator to determine if a space is open.  This method is called by the make_move method
@@ -655,8 +656,19 @@ class General(GamePiece):
         return "Red General"
 
 # Basic Tests
-# game = JanggiGame()
-#
+game = JanggiGame()
+
+game.make_move("c10","d8")
+game.print_board()
+game.make_move("c1","d3")
+game.print_board()
+game.make_move("c7","d7")
+game.print_board()
+game.make_move("c4","d4")
+game.print_board()
+game.make_move("d8","c6")
+game.print_board()
+
 # game.make_move("c10","d8")
 # game.print_board()
 # game.make_move("c1","d3")
