@@ -656,18 +656,18 @@ class General(GamePiece):
         return "Red General"
 
 # Basic Tests
-game = JanggiGame()
-
-game.make_move("c10","d8")
-game.print_board()
-game.make_move("c1","d3")
-game.print_board()
-game.make_move("c7","d7")
-game.print_board()
-game.make_move("c4","d4")
-game.print_board()
-game.make_move("d8","c6")
-game.print_board()
+# game = JanggiGame()
+#
+# game.make_move("c10","d8")
+# game.print_board()
+# game.make_move("c1","d3")
+# game.print_board()
+# game.make_move("c7","d7")
+# game.print_board()
+# game.make_move("c4","d4")
+# game.print_board()
+# game.make_move("d8","c6")
+# game.print_board()
 
 # game.make_move("c10","d8")
 # game.print_board()
