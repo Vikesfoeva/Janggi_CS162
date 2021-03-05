@@ -697,9 +697,9 @@ class General(GamePiece):
         general_destination = destination_col + str(destination_row)
 
         if game_board.get_blue_gen() == general_source:
-            game_board.set_blue_gen() == general_destination
+            game_board.set_blue_gen(general_destination)
         elif game_board.get_red_gen() == general_source:
-            game_board.set_red_gen() == general_destination
+            game_board.set_red_gen(general_destination)
 
         return True
 
