@@ -724,7 +724,7 @@ class Horse(GamePiece):
         if abs(row_move) == 2 and not game_board.space_open(source_col, source_row + row_move/2):
             return False
         # Check if the horizontal move is blocked
-        elif abs(row_move) == 1 and not game_board.space_open(layout[col1 + col_move/2], source_row):
+        elif abs(row_move) == 1 and not game_board.space_open(layout[int(col1 + col_move/2)], source_row):
             return False
 
         return True
@@ -816,8 +816,32 @@ class General(GamePiece):
         return "Red General"
 
 # # Basic Tests
-game = JanggiGame()
-game.is_in_check('blue')
+# game = JanggiGame()
+# game.make_move("c7", "c6")
+# game.print_board()
+# game.make_move("c1", "d3")
+# game.print_board()
+# game.make_move("b10", "d7")
+# game.print_board()
+# game.make_move("b3", "e3")
+# game.print_board()
+# game.make_move("c10", "d8")
+# game.print_board()
+# game.make_move("h1", "g3")
+# game.print_board()
+# game.make_move("e7", "e6")
+# game.print_board()
+# game.make_move("e3", "e6")
+# game.print_board()
+# game.make_move("h8", "c8")
+# game.print_board()
+# game.make_move("d3", "e5")
+# game.print_board()
+# game.make_move("c8", "c4")
+# game.print_board()
+# game.make_move("e5", "c4")
+# game.print_board()
+# game.is_in_check('blue')
 # game.make_move('c7', 'b7')
 # game.make_move('p', 'p')
 # game.make_move('b8', 'b4')
