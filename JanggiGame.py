@@ -2,6 +2,7 @@
 #  Date: 2/19/2021
 #  Description: The ancient game of Janggi!  This project outlines the logic to get started playing Janggi.
 #  https://docs.google.com/spreadsheets/d/1Lfl4IaSGqQaBYZmoD2wOrTVkXS2E7BP9v6N4p5sDPgM/edit#gid=0
+#  Additional planning - https://docs.google.com/spreadsheets/d/13MTVMrmjhH53qYzgSoDzK7Y_Y0INGk79RlSjAaf7e8o/edit#gid=0
 #  https://www.pychess.org/
 
 #######
@@ -205,6 +206,8 @@ class JanggiGame():
         checks to ensure that players are moving valid pieces on their turn, ensures they are not trying to capture their
         own pieces, calls appropiate methods to ensure they are making the proper move for the piece they selected.
         """
+        print("Attempting", source, "==>", destination)
+
         if source == 'pass':
             self._blue_turn = not self._blue_turn
             return True
@@ -234,8 +237,6 @@ class JanggiGame():
 
         source_square = self._board[source_col][source_row]
         destination_square = self._board[destination_col][destination_row]
-
-        print("Attempting", source, "==>", destination)
 
         if self._blue_turn and not source_square.get_owner():
             # Can't move a red piece on blue's turn
