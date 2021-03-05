@@ -562,7 +562,9 @@ class Horse(GamePiece):
         row_move = destination_row - source_row
 
         # col_move or row_move must be 2 and the other must be 1
-        if not (abs(col_move) == 2 and abs(row_move) == 1) and not (abs(col_move) == 1 and abs(row_move == 2)):
+        crit1 = abs(col_move) == 2 and abs(row_move) == 1
+        crit2 = abs(col_move) == 1 and abs(row_move) == 2
+        if crit1 and crit2:
             return False
 
         # Check if the vertical move is blocked
@@ -570,8 +572,6 @@ class Horse(GamePiece):
             return False
         # Check if the horizontal move is blocked
         elif abs(row_move) == 1 and not game_board.space_open(layout[col1 + col_move/2], source_row):
-            return False
-        else:
             return False
 
         return True
@@ -656,8 +656,27 @@ class General(GamePiece):
 
 # Basic Tests
 # game = JanggiGame()
-# #
+#
+# game.make_move("c10","d8")
 # game.print_board()
+# game.make_move("c1","d3")
+# game.print_board()
+# game.make_move("e7","e6")
+# game.print_board()
+# game.make_move("e4","e5")
+# game.print_board()
+# game.make_move("c7","c6")
+# game.print_board()
+# game.make_move("c4","c5")
+# game.print_board()
+# game.make_move("c6","c5")
+# game.print_board()
+# game.make_move("e5","e6")
+# game.print_board()
+# game.make_move("d8","e6")
+# game.print_board()
+
+
 # game.make_move("a7","a6")
 # game.print_board()
 # game.make_move("i4","i5")
