@@ -210,11 +210,34 @@ class JanggiGame():
             return False
 
         player = player.lower()
+        layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
-        if player == 'red':
-            pass
-        elif player == 'blue':
-            pass
+        # Start as checking red
+        is_blue = False
+        general_col = self._red_gen[0].lower()
+        general_row = int(self._red_gen[1:])
+
+        # Flip to blue if needed
+        if player == 'blue':
+            is_blue = not is_blue
+            general_col = self._blue_gen[0].lower()
+            general_row = int(self._blue_gen[1:])
+
+        # iterate through the board
+        for col in layout:
+            for row in range(1, 11):
+                square = self._board[col][row]
+                # Check if blue is in check
+                if is_blue and square is not None and not square.get_owner():
+                    # We have now determined this is a red piece, check if it has a valid move to the general
+                    if square.check_valid_moves(col, row, general_col, general_row, self):
+                        return True
+
+                # Check if red is in check
+                elif not is_blue and square is not None and square.get_owner():
+                    # We have now determined this is a blue piece, check if it has a valid move to the general
+                    if square.check_valid_moves(col, row, general_col, general_row, self):
+                        return True
 
         return False
 
@@ -337,7 +360,7 @@ class GamePiece():
         return self._captured
 
     def get_owner(self):
-        """Returns the boolean of whether or not this is a blue game piece"""
+        """Returns the boolean of whether or not this is a blue game piece.  True is blue"""
         return self._is_blue
 
     def col_difference(self, col1, col2):
@@ -793,7 +816,8 @@ class General(GamePiece):
         return "Red General"
 
 # # Basic Tests
-# game = JanggiGame()
+game = JanggiGame()
+game.is_in_check('blue')
 # game.make_move('c7', 'b7')
 # game.make_move('p', 'p')
 # game.make_move('b8', 'b4')
