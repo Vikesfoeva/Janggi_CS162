@@ -208,7 +208,7 @@ class JanggiGame():
         """
         print("Attempting", source, "==>", destination)
 
-        if source == 'pass':
+        if source == destination:
             self._blue_turn = not self._blue_turn
             return True
 
