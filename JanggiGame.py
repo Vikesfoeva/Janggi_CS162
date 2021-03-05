@@ -316,6 +316,9 @@ class JanggiGame():
             print(row)
         print()
 
+    def get_square(self, col, row):
+        """Returns the contents of a square"""
+        return self._board[col][row]
 
 class GamePiece():
     """A parent class to create game pieces.  This class initializes the information that is consistent across all
@@ -583,7 +586,87 @@ class Elephant(GamePiece):
 class Cannon(GamePiece):
     """Outlines the Cannon Game Piece"""
     def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
-        """Checks if the input move is valid and returns True / False based on that."""
+        """Checks if the input move is valid and returns True / False based on that.
+        Cannon cannot capture cannon & cannon cannot jump over cannon
+        Must have exactly 1 piece between source and destination from either team
+        """
+        in_palace = False
+        if self.inside_palace(source_col, source_row, destination_col, destination_row):
+            in_palace = not in_palace
+
+        layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+        col1 = layout.index(source_col)
+        col2 = layout.index(destination_col)
+        col_move = col2 - col1
+
+        dest_square = game_board.get_square(destination_col, destination_row)
+
+        if dest_square is not None and type(dest_square).__name__ == 'Cannon':
+            return False
+
+        row_move = destination_row - source_row
+
+        # Diagonal rules
+        if in_palace and abs(row_move) > 0 and abs(col_move) > 0:
+            if abs(row_move) > 2 or abs(col_move) > 2:
+                return False
+            if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
+                return False
+            if abs(row_move) == 2 and abs(col_move) != 2 and row_move != 0:
+                return False
+            if abs(col_move) == 2 and abs(row_move) != 2 and col_move != 0:
+                return False
+
+        if (not in_palace and source_col != destination_col) and (not in_palace and source_row != destination_row):
+            # Can only move diagonally while in the palace
+            return False
+
+        pieces_jumped = 0
+
+        if not in_palace and col_move == 0:
+            # Column is being held constant
+            if 0 > row_move:
+                increment = -1
+            else:
+                increment = 1
+
+            for path in range(increment, row_move, increment):
+                square = game_board.get_square(source_col, source_row + path)
+                if square is not None and type(square).__name__ != "Cannon":
+                    pieces_jumped += 1
+                elif type(square).__name__ == "Cannon":
+                    return False
+
+            if pieces_jumped != 1:
+                return False
+
+        elif not in_palace and row_move == 0:
+            # Row is being held constant
+            if 0 > col_move:
+                increment = -1
+            else:
+                increment = 1
+
+            for path in range(increment, col_move, increment):
+                square = game_board.get_square(layout[col1 + path], source_row)
+                if square is not None and type(square).__name__ != "Cannon":
+                    pieces_jumped += 1
+                elif type(square).__name__ == "Cannon":
+                    return False
+
+            if pieces_jumped != 1:
+                return False
+
+        elif in_palace and abs(row_move) == 2 and abs(col_move) == 2:
+            # Check for valid palace diagonals
+            # If we are trying to move two diagonal spaces, the middle must be empty
+            square_blue = game_board.get_square('e', 9)
+            square_red = game_board.get_square('e', 2)
+            if source_row > 5 and square_red is not None and type(square_red).__name__ != "Cannon":
+                return False
+            elif source_row < 5 and square_blue is not None and type(square_blue).__name__ != "Cannon":
+                return False
+
         return True
 
     def get_name(self):
@@ -710,8 +793,12 @@ class General(GamePiece):
         return "Red General"
 
 # Basic Tests
-# game = JanggiGame()
-#
+game = JanggiGame()
+game.make_move('c7', 'b7')
+game.make_move('p', 'p')
+game.make_move('b8', 'b4')
+
+game.print_board()
 # game.make_move("c10","d8")
 # game.print_board()
 # game.make_move("c1","d3")
