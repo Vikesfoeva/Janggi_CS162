@@ -210,7 +210,7 @@ class JanggiGame():
             return True
 
         # Break down the source square algebraic notation into coordinates
-        source_col = source[0]
+        source_col = source[0].lower()
         source_row = int(source[1:])
 
         if self.space_open(source_col, source_row):
@@ -222,11 +222,20 @@ class JanggiGame():
             return False
 
         # Break down the destination square algebraic notation into coordinates
-        destination_col = destination[0]
+        destination_col = destination[0].lower()
         destination_row = int(destination[1:])
+
+        layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+        if source_col not in layout or destination_col not in layout:
+            return False
+
+        if destination_row > 10 or source_row > 10:
+            return False
 
         source_square = self._board[source_col][source_row]
         destination_square = self._board[destination_col][destination_row]
+
+        print("Attempting", source, "==>", destination)
 
         if self._blue_turn and not source_square.get_owner():
             # Can't move a red piece on blue's turn
@@ -243,7 +252,7 @@ class JanggiGame():
                 # You can't capture your own piece, it's poor battle tactics!
                 return False
 
-        if source_square.check_valid_moves(source_col, source_row, destination_col, destination_row):
+        if source_square.check_valid_moves(source_col, source_row, destination_col, destination_row, self):
             self._board[destination_col][destination_row] = source_square
             self._board[source_col][source_row] = None
             self._blue_turn = not self._blue_turn
@@ -261,6 +270,7 @@ class JanggiGame():
         """Prints out the board into the terminal.  This is designed to help the user visualize board after a a set of
         moves has taken place.  This method relies on the get_name() method of each piece's class to print out what
         that particular piece is.  That method on those pieces is just used to help track this board visualization."""
+        print()
         for board_row in range(1, 1 + len(self._board['a'])):
             row = []
             for board_col in self._board.keys():
@@ -284,6 +294,7 @@ class JanggiGame():
                 elif len(square) == 13:
                     row.append(square)
             print(row)
+        print()
 
 
 class GamePiece():
@@ -314,12 +325,145 @@ class GamePiece():
         col2 = layout.index(col2)
         return abs(col1 - col2)
 
+    def invalid_diagonal_check(self, source_col, source_row, destination_col, destination_row):
+        """Disallowed Diagonals in the Palace (note all others are invalid).  Note that we need to block both D9==E10
+        and also E10 ==> D9
+        D9  <=> E10,
+        E10 <=> F9,
+        F9  <=> E8,
+        E8  <=> D9,
+        E1 <=> F2,
+        F2 <=> E3,
+        E3 <=> D2,
+        D2 <=> E1
+
+        Returns True if the diagonal was invalid
+        """
+
+        # D9 ==> E10 and E10 ==> D9
+        if source_col == 'd' and source_row == 9 and destination_col == 'e' and destination_row == 10:
+            return True
+        elif source_col == 'e' and source_row == 10 and destination_col == 'd' and destination_row == 9:
+            return True
+
+        # E10 ==> F9 and F9 ==> E10
+        elif source_col == 'e' and source_row == 10 and destination_col == 'f' and destination_row == 9:
+            return True
+        elif source_col == 'f' and source_row == 9 and destination_col == 'e' and destination_row == 10:
+            return True
+
+        # F9 ==> E8 and E8 ==> F9
+        elif source_col == 'f' and source_row == 9 and destination_col == 'e' and destination_row == 8:
+            return True
+        elif source_col == 'e' and source_row == 8 and destination_col == 'f' and destination_row == 9:
+            return True
+
+        # E8 ==> D9 and D9 ==> E8
+        elif source_col == 'e' and source_row == 8 and destination_col == 'd' and destination_row == 9:
+            return True
+        elif source_col == 'd' and source_row == 9 and destination_col == 'e' and destination_row == 8:
+            return True
+
+        # D2 ==> E1 and E1 ==> D2
+        if source_col == 'd' and source_row == 2 and destination_col == 'e' and destination_row == 1:
+            return True
+        elif source_col == 'e' and source_row == 1 and destination_col == 'd' and destination_row == 2:
+            return True
+
+        # E1 ==> F2 and F2 ==> E1
+        elif source_col == 'e' and source_row == 1 and destination_col == 'f' and destination_row == 2:
+            return True
+        elif source_col == 'f' and source_row == 2 and destination_col == 'e' and destination_row == 1:
+            return True
+
+        # F2 ==> E3 and E3 ==> F2
+        elif source_col == 'f' and source_row == 2 and destination_col == 'e' and destination_row == 3:
+            return True
+        elif source_col == 'e' and source_row == 3 and destination_col == 'f' and destination_row == 2:
+            return True
+
+        # E3 ==> D2 and D2 ==> E3
+        elif source_col == 'e' and source_row == 3 and destination_col == 'd' and destination_row == 2:
+            return True
+        elif source_col == 'd' and source_row == 2 and destination_col == 'e' and destination_row == 3:
+            return True
+
+        return False
+
+    def inside_palace(self, source_col, source_row, destination_col, destination_row):
+        """Returns true if a piece is contained within the palace and false if is not"""
+
+        source_col_palace = source_col == 'd' or source_col == 'e' or source_col == 'f'
+        source_row_palace = source_row < 4 or source_row > 7
+
+        destination_col_palace = destination_col == 'd' or destination_col == 'e' or destination_col == 'f'
+        destination_row_palace = destination_row < 4 or destination_row > 7
+
+        if source_col_palace and source_row_palace and destination_col_palace and destination_row_palace:
+            return True
+
+        return False
 
 class Chariot(GamePiece):
     """Outlines the Chariot Game Piece"""
-    def check_valid_moves(self, input_move):
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """Checks if the input move is valid and returns True / False based on that."""
-        pass
+        in_palace = False
+        if self.inside_palace(source_col, source_row, destination_col, destination_row):
+            in_palace = not in_palace
+
+        layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+        col1 = layout.index(source_col)
+        col2 = layout.index(destination_col)
+        col_move = col2 - col1
+
+        row_move = destination_row - source_row
+
+        if in_palace and abs(row_move) > 0 and abs(col_move) > 0:
+            if abs(row_move) > 2 or abs(col_move) > 2:
+                return False
+            if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
+                return False
+            if abs(row_move) == 2 and abs(col_move) != 2 and row_move != 0:
+                return False
+            if abs(col_move) == 2 and abs(row_move) != 2 and col_move != 0:
+                return False
+
+        if (not in_palace and source_col != destination_col) and (not in_palace and source_row != destination_row):
+            # Can only move diagonally while in the palace
+            return False
+
+        if not in_palace and col_move == 0:
+            # Column is being held constant
+            if 0 > row_move:
+                increment = -1
+            else:
+                increment = 1
+
+            for path in range(increment, row_move, increment):
+                if not game_board.space_open(source_col, source_row + path):
+                    return False
+
+        elif not in_palace and row_move == 0:
+            # Row is being held constant
+            if 0 > col_move:
+                increment = -1
+            else:
+                increment = 1
+
+            for path in range(increment, col_move, increment):
+                if not game_board.space_open(layout[col1 + path], source_row):
+                    return False
+
+        elif in_palace and abs(row_move) == 2 and abs(col_move) == 2:
+            # Check for valid palace diagonals
+            # If we are trying to move two diagonal spaces, the middle must be empty
+            if source_row > 5 and not game_board.space_open('e', 9):
+                return False
+            elif source_row < 5 and not game_board.space_open('e', 2):
+                return False
+
+        return True
 
     def get_name(self):
         """Prints out the game piece based on who the owner is"""
@@ -330,7 +474,7 @@ class Chariot(GamePiece):
 
 class Soldier(GamePiece):
     """Outlines the Soldier Game Piece"""
-    def check_valid_moves(self, source_col, source_row, destination_col, destination_row):
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """
         Checks if the input move is valid
         Soldiers can only move forward their direction or side to side 1 space
@@ -347,7 +491,7 @@ class Soldier(GamePiece):
 
         in_palace = False
         if (source_row == 2 or source_row == 3 or source_row == 8 or source_row == 9) and (source_col == 'd' or source_col == 'e' or source_col == 'f'):
-            in_palace = True
+            in_palace = not in_palace
 
         if not in_palace and row_move == 1 and col_move ==1:
             # Can only move diagonally in the palace
@@ -361,6 +505,10 @@ class Soldier(GamePiece):
             # This section represents red
             if destination_row < source_row:
                 return False
+
+        # Checks to see if the diagonal we are moving on is valid, not all are
+        if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
+            return False
 
         return True
 
@@ -412,9 +560,32 @@ class Horse(GamePiece):
 
 class Guard(GamePiece):
     """Outlines the Guard Game Piece"""
-    def check_valid_moves(self, input_move):
-        """Checks if the input move is valid"""
-        pass
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
+        """Checks if the move is valid for a Guard.  Guards can move any direction within their palace"""
+        row_move = abs(source_row - destination_row)
+
+        if destination_row == 4 or destination_row ==5 or destination_row ==6 or destination_row == 7:
+            # The destination is outside the palace
+            return False
+
+        if destination_col != 'd' and destination_col != 'e' and destination_col != 'f':
+            # The destination is outside the palace
+            return False
+
+        if row_move > 1:
+            # Can only move 1 row
+            return False
+
+        col_move = self.col_difference(source_col, destination_col)
+        if col_move > 1:
+            # Can only move 1 col
+            return False
+
+        # Checks to see if the diagonal we are moving on is valid, not all are
+        if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
+            return False
+
+        return True
 
     def get_name(self):
         """Checks if the input move is valid and returns True / False based on that."""
@@ -425,7 +596,7 @@ class Guard(GamePiece):
 
 class General(GamePiece):
     """Outlines the Guard Game Piece"""
-    def check_valid_moves(self, source_col, source_row, destination_col, destination_row):
+    def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """Checks if the move is valid for a General.  Generals can move any direction within their palace"""
         row_move = abs(source_row - destination_row)
 
@@ -446,6 +617,10 @@ class General(GamePiece):
             # Can only move 1 col
             return False
 
+        # Checks to see if the diagonal we are moving on is valid, not all are
+        if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
+            return False
+
         return True
 
     def get_name(self):
@@ -454,11 +629,52 @@ class General(GamePiece):
             return "Blue General"
         return "Red General"
 
-# # Basic Tests
+# Basic Tests
 # game = JanggiGame()
 #
 # game.print_board()
-#
+
+# # Move a guard around
+# game.make_move("e9", "e8")
+# game.make_move('pass', 'pass')
+# game.make_move("e8", "f8")
+# game.make_move('pass', 'pass')
+# game.make_move("f8", "e9")
+# game.make_move('pass', 'pass')
+# game.make_move("e9", "d8")
+# game.make_move('pass', 'pass')
+# game.make_move("d8", "d9")
+# game.make_move('pass', 'pass')
+# game.make_move("d9", 'e8')
+
+# # Move a chariot around
+# game.make_move("i7", "h7")
+# game.make_move("pass", "pass")
+# game.make_move("i10", "i4")
+# game.make_move("pass", "pass")
+# game.make_move("i4", "i9")
+# game.make_move("pass", "pass")
+# game.make_move("i9", "f9")
+# game.make_move("pass", "pass")
+# game.make_move("f9", "e8")
+# game.make_move("e9", "e10")
+# game.make_move("pass", "pass")
+# game.make_move("f9", "e9")
+# game.make_move("pass", "pass")
+# game.make_move("d10", "d9")
+# game.make_move("pass", "pass")
+# game.make_move("f10", "f9")
+# game.make_move("pass", "pass")
+# game.make_move("e9", "f10")
+# game.make_move("pass", "pass")
+# game.make_move("f10", "d8")
+# game.make_move("pass", "pass")
+# game.print_board()
+# game.make_move("d8", "f8")
+# game.make_move("pass", "pass")
+# game.make_move("f8", "d10")
+# game.print_board()
+
 # # Move a general around
 # game.make_move('e9', 'e10')
 # game.make_move('pass', 'pass')
