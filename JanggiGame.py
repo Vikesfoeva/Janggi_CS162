@@ -549,7 +549,31 @@ class Cannon(GamePiece):
 class Horse(GamePiece):
     """Outlines the Horse Game Piece"""
     def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
-        """Checks if the input move is valid and returns True / False based on that."""
+        """Checks if the input move is valid and returns True / False based on that.
+        This piece moves similarily to the knight in western chess, in an L shape.  It can however be blocked.
+        It will first move 1 space vertically or horizontally towards it's destination and then 1 space
+        diagonally, if it cannot make the first 1/2 of the move; it is blocked.
+        """
+        layout = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+        col1 = layout.index(source_col)
+        col2 = layout.index(destination_col)
+        col_move = col2 - col1
+
+        row_move = destination_row - source_row
+
+        # col_move or row_move must be 2 and the other must be 1
+        if not (abs(col_move) == 2 and abs(row_move) == 1) and not (abs(col_move) == 1 and abs(row_move == 2)):
+            return False
+
+        # Check if the vertical move is blocked
+        if abs(row_move) == 2 and not game_board.space_open(source_col, source_row + row_move/2):
+            return False
+        # Check if the horizontal move is blocked
+        elif abs(row_move) == 1 and not game_board.space_open(layout[col1 + col_move/2], source_row):
+            return False
+        else:
+            return False
+
         return True
 
     def get_name(self):
