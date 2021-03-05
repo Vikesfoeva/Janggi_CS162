@@ -544,11 +544,13 @@ class Elephant(GamePiece):
         if not crit1 and not crit2:
             return False
 
-        # Check if the vertical move is blocked
-        if abs(row_move) == 3 and not game_board.space_open(source_col, source_row + row_move/3):
+        # Check if the vertical move is blocked and the diagonal spot that is crossed
+        if abs(row_move) == 3 and not game_board.space_open(source_col, source_row + row_move/3) and \
+                not game_board.space_open(layout[col1 + col_move/2], source_row + row_move/3*2):
             return False
-        # Check if the horizontal move is blocked
-        elif abs(row_move) == 2 and not game_board.space_open(layout[col1 + col_move/3], source_row):
+        # Check if the horizontal move is blocked and the diagonal spot that is crossed
+        elif abs(row_move) == 2 and not game_board.space_open(layout[col1 + col_move/3], source_row) and \
+                not game_board.space_open(layout[col1 + col_move/3*2], source_row + row_move/2):
             return False
 
         return True
