@@ -71,6 +71,8 @@ class JanggiGame():
           currently is."""
         self._game_state = None
         self._blue_turn = True
+        self._red_check = False
+        self._blue_check = False
         self._blue_gen = 'e9'
         self._red_gen = 'e2'
         self._board = {
@@ -205,7 +207,7 @@ class JanggiGame():
         moves for that soldier and see if any of them wind up placing them on the square as the general.  If that is true
         and the general also then does not have any moves that put them in a spot where they are not in check, then the
         game is now checkmate."""
-        print('Starting the check now', player)
+        # print('Starting the check now', player)
         if type(player) != str:
             return False
 
@@ -247,7 +249,7 @@ class JanggiGame():
         checks to ensure that players are moving valid pieces on their turn, ensures they are not trying to capture their
         own pieces, calls appropiate methods to ensure they are making the proper move for the piece they selected.
         """
-        print("Attempting", source, "==>", destination)
+        # print("Attempting", source, "==>", destination)
 
         if source == destination:
             self._blue_turn = not self._blue_turn
@@ -297,12 +299,21 @@ class JanggiGame():
         if source_square.check_valid_moves(source_col, source_row, destination_col, destination_row, self):
             self._board[destination_col][destination_row] = source_square
             self._board[source_col][source_row] = None
-            self._blue_turn = not self._blue_turn
 
+            # Ensure this move does not place the user in check.  If it did, restore the board state
+            # and then return False
+            if (self._blue_turn and self.is_in_check('blue')) or (not self._blue_turn and self.is_in_check('red')):
+                self._board[source_col][source_row] = source_square
+                self._board[destination_col][destination_row] = destination_square
+                return False
+
+            # Check if this move left the opponent in check
             if self._blue_turn:
-                self.is_in_check('red')
+                self._red_check = self.is_in_check('red')
             else:
-                self.is_in_check('blue')
+                self._blue_check = self.is_in_check('blue')
+
+            self._blue_turn = not self._blue_turn
 
             return True
 
@@ -348,6 +359,7 @@ class JanggiGame():
     def get_square(self, col, row):
         """Returns the contents of a square"""
         return self._board[col][row]
+
 
 class GamePiece():
     """A parent class to create game pieces.  This class initializes the information that is consistent across all
@@ -450,6 +462,9 @@ class GamePiece():
 
         destination_col_palace = destination_col == 'd' or destination_col == 'e' or destination_col == 'f'
         destination_row_palace = destination_row < 4 or destination_row > 7
+
+        if (destination_row < 4 or source_row < 4) and (destination_row > 7 or source_row > 7):
+            return False
 
         if source_col_palace and source_row_palace and destination_col_palace and destination_row_palace:
             return True
@@ -821,184 +836,20 @@ class General(GamePiece):
             return "Blue General"
         return "Red General"
 
-# # Basic Tests
-# game = JanggiGame()
-# game.make_move('e9', 'e8')
-# game.print_board()
 
-# game.make_move("c7","c6")
-# game.print_board()
-# game.make_move("c1","d3")
-# game.print_board()
-# game.make_move("b10","d7")
-# game.print_board()
-# game.make_move("b3","e3")
-# game.print_board()
-# game.make_move("c10","d8")
-# game.print_board()
-# game.make_move("h1","g3")
-# game.print_board()
-# game.make_move("e7","e6")
-# game.print_board()
-# game.make_move("e3","e6")
-# game.print_board()
-# print("Check red in check:", game.is_in_check('red'))
-# print("Check blue in check:", game.is_in_check('blue'))
-# game.make_move("h8","c8")
-# game.print_board()
-# game.make_move("d3","e5")
-# game.print_board()
-# game.make_move("c8","c4")
-# game.print_board()
-# print("Check red in check:", game.is_in_check('red'))
-# print("Check blue in check:", game.is_in_check('blue'))
-# game.make_move("e5","c4")
-# game.print_board()
-# game.make_move("i10","i8")
-# game.print_board()
-# game.make_move("g4","f4")
-# game.print_board()
-# game.make_move("i8","f8")
-# game.print_board()
-# game.make_move("g3","h5")
-# game.print_board()
-# game.make_move("h10","g8")
-# game.print_board()
-# game.make_move("e6","e3")
-# game.print_board()
-# print("Check red in check:", game.is_in_check('red'))
-# print("Check blue in check:", game.is_in_check('blue'))
-# game.make_move("e9","d9")
-# game.print_board()
-# print("Check red in check:", game.is_in_check('red'))
-# print("Check blue in check:", game.is_in_check('blue'))
-# game.make_move('c7', 'b7')
-# game.make_move('p', 'p')
-# game.make_move('b8', 'b4')
-# #
-# game.print_board()
-# game.make_move("c10","d8")
-# game.print_board()
-# game.make_move("c1","d3")
-# game.print_board()
-# game.make_move("c7","d7")
-# game.print_board()
-# game.make_move("c4","d4")
-# game.print_board()
-# game.make_move("d8","c6")
-# game.print_board()
-# game.make_move("d8","d8")
-# game.print_board()
-# game.make_move("d3","d6")
-# game.print_board()
-
-# game.make_move("c10","d8")
-# game.print_board()
-# game.make_move("c1","d3")
-# game.print_board()
-# game.make_move("e7","e6")
-# game.print_board()
-# game.make_move("e4","e5")
-# game.print_board()
-# game.make_move("c7","c6")
-# game.print_board()
-# game.make_move("c4","c5")
-# game.print_board()
-# game.make_move("c6","c5")
-# game.print_board()
-# game.make_move("e5","e6")
-# game.print_board()
-# game.make_move("d8","e6")
-# game.print_board()
+def main():
+    game = JanggiGame()
+    game.make_move("c7", "c6")
+    game.is_in_check('blue')
+    game.make_move("c1", "d3")
+    game.is_in_check('red')
+    game.make_move("b10", "d7")
+    game.is_in_check('blue')
+    game.make_move("b3", "e3")
+    game.is_in_check('red')
+    game.make_move("c10", "d8")
+    game.print_board()
 
 
-# game.make_move("a7","a6")
-# game.print_board()
-# game.make_move("i4","i5")
-# game.print_board()
-# game.make_move("a6","a5")
-# game.print_board()
-# game.make_move("i5","i6")
-# game.print_board()
-# game.make_move("a5","a4")
-# game.print_board()
-
-# # Move a guard around
-# game.make_move("e9", "e8")
-# game.make_move('pass', 'pass')
-# game.make_move("e8", "f8")
-# game.make_move('pass', 'pass')
-# game.make_move("f8", "e9")
-# game.make_move('pass', 'pass')
-# game.make_move("e9", "d8")
-# game.make_move('pass', 'pass')
-# game.make_move("d8", "d9")
-# game.make_move('pass', 'pass')
-# game.make_move("d9", 'e8')
-
-# # Move a chariot around
-# game.make_move("i7", "h7")
-# game.make_move("pass", "pass")
-# game.make_move("i10", "i4")
-# game.make_move("pass", "pass")
-# game.make_move("i4", "i9")
-# game.make_move("pass", "pass")
-# game.make_move("i9", "f9")
-# game.make_move("pass", "pass")
-# game.make_move("f9", "e8")
-# game.make_move("e9", "e10")
-# game.make_move("pass", "pass")
-# game.make_move("f9", "e9")
-# game.make_move("pass", "pass")
-# game.make_move("d10", "d9")
-# game.make_move("pass", "pass")
-# game.make_move("f10", "f9")
-# game.make_move("pass", "pass")
-# game.make_move("e9", "f10")
-# game.make_move("pass", "pass")
-# game.make_move("f10", "d8")
-# game.make_move("pass", "pass")
-# game.print_board()
-# game.make_move("d8", "f8")
-# game.make_move("pass", "pass")
-# game.make_move("f8", "d10")
-# game.print_board()
-
-# # Move a general around
-# game.make_move('e9', 'e10')
-# game.make_move('pass', 'pass')
-# game.make_move('e10', 'e9')
-# game.make_move('pass', 'pass')
-# game.make_move('e9', 'd8')
-# game.make_move('pass', 'pass')
-# game.make_move('d8', 'c8')
-# # Move a solider around
-# # game.make_move('pass', 'pass')
-# # game.make_move('c4', 'c5')
-# # game.make_move('pass', 'pass')
-# # game.make_move('c5', 'c6')
-# # game.make_move('pass', 'pass')
-# # game.make_move('c6', 'c7')
-# # game.make_move('pass', 'pass')
-# # game.make_move('c7', 'd7')
-# # game.make_move('pass', 'pass')
-# # game.make_move('d7', 'd8')
-# # game.make_move('pass', 'pass')
-# # game.make_move('d8', 'e9')
-# # game.make_move('pass', 'pass')
-# # game.make_move('e9', 'f10')
-# # game.make_move('pass', 'pass')
-# # game.make_move('f10', 'g10')
-# print()
-# game.print_board()
-# move_result = game.make_move('c1', 'e3') #should be False because it's not Red's turn
-# move_result = game.make_move('a7,'b7') #should return True
-# blue_in_check = game.is_in_check('blue') #should return False
-# game.make_move('a4', 'a5') #should return True
-# state = game.get_game_state() #should return UNFINISHED
-# game.make_move('b7','b6') #should return True
-# game.make_move('b3','b6') #should return False because it's an invalid move
-# game.make_move('a1','a4') #should return True
-# game.make_move('c7','d7') #should return True
-# game.make_move('a4','a4') #this will pass the Red's turn and return True
-
+if __name__ == "__main__":
+    main()
