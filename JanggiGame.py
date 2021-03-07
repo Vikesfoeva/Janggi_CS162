@@ -700,12 +700,10 @@ class Elephant(GamePiece):
             return False
 
         # Check if the vertical move is blocked and the diagonal spot that is crossed
-        if abs(row_move) == 3 and not game_board.space_open(source_col, source_row + row_move/3) and \
-                not game_board.space_open(layout[col1 + col_move/2], source_row + row_move/3*2):
+        if abs(row_move) == 3 and (not game_board.space_open(source_col, source_row + row_move/3) or not game_board.space_open(layout[int(col1 + col_move/2)], source_row + row_move/3*2)):
             return False
         # Check if the horizontal move is blocked and the diagonal spot that is crossed
-        elif abs(row_move) == 2 and not game_board.space_open(layout[int(col1 + col_move/3)], source_row) and \
-                not game_board.space_open(layout[int(col1 + col_move/3*2)], source_row + row_move/2):
+        elif abs(row_move) == 2 and (not game_board.space_open(layout[int(col1 + col_move/3)], source_row) or not game_board.space_open(layout[int(col1 + col_move/3*2)], source_row + row_move/2)):
             return False
 
         return True
@@ -930,19 +928,7 @@ class General(GamePiece):
 
 def main():
     game = JanggiGame()
-    game.make_move("c7", "c6")
-    game.is_in_check('blue')
-    game.make_move("a4", "a5")
-    game.is_in_check('red')
-    game.make_move("a7", "b7")
-    game.is_in_check('blue')
-    game.make_move("a5", "a6")
-    game.is_in_check('red')
-    game.make_move("b8", "b6")
-    game.is_in_check('blue')
-    game.make_move("a6", "a7")
-    game.is_in_check('red')
-    game.make_move("b6", "e6")
+    game.print_board()
 
 
 if __name__ == "__main__":
