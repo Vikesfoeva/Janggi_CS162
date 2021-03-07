@@ -5,6 +5,10 @@
 #  Additional planning - https://docs.google.com/spreadsheets/d/13MTVMrmjhH53qYzgSoDzK7Y_Y0INGk79RlSjAaf7e8o/edit#gid=0
 #  https://www.pychess.org/
 
+# Ways to improve this for performance
+# 1) Keep a list of all player pieces that are not captured, one for each player
+# 2) Add the row and column concept to each piece and store it on the piece, this will help the checkmate search
+
 #######
 # "DETAILED TEXT DESCRIPTIONS OF HOW TO HANDLE THE SCENARIOS"
 
@@ -927,6 +931,7 @@ class General(GamePiece):
 
 
 def main():
+    """The main function that is used for running the script locally and testing"""
     game = JanggiGame()
     game.print_board()
 
