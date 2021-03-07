@@ -9,7 +9,7 @@
 # "DETAILED TEXT DESCRIPTIONS OF HOW TO HANDLE THE SCENARIOS"
 
 # Initializing the board
-# The board will be initialized upon the creation of an instance of the JanggiGame class.  Nested dictionarys will be
+# The board will be initialized upon the creation of an instance of the JanggiGame class.  Nested dictionary will be
 # used to hold the game board.  The first layer of the dictionary is the columns of the board 'a', 'b', etc.  Then,
 # nested within letter is a dictionary that holds rows 1-10.  The value at each key is the 'thing' currently at that
 # square.  That would be a piece or None.
@@ -26,7 +26,7 @@
 # with soldiers as they can only move forward (forward of of course has different meaning for red vs blue).
 
 # Modifying the board state after each move.
-# I'm not entirely sure what state is meant to refer to here since state was referred to in the README as 'UNFINSISHED'
+# I'm not entirely sure what state is meant to refer to here since state was referred to in the README as 'UNFINISHED'
 # or 'RED_WON', etc.  That state does not need to be modified after every single move, and should only change once
 # during the course of the game.  Pieces are moved across the board by passing several logical checks.  Is the right
 # piece being moved for who's turn it is, is the move valid for the chosen piece, were proper coordinates passed, etc.
@@ -57,18 +57,20 @@
 def print_error(message):
     """A function to print out error messages to the console.  We use this function so that only 1 line needs
     to be commented away to prevent console output"""
-    #print(message)
+    # print(message)
+    pass
 
 
-class JanggiGame():
+# noinspection SpellCheckingInspection
+class JanggiGame:
     """Builds the board and contains the methods that help the board to function"""
 
     def __init__(self):
         """Creates the board and the game.  The board is defined by nested dictionaries.  The first level is an entry
-        for each row (a, b, c etc) and then within each row the columns for that one.  This board is prebuilt in the class
-        so that it is built consistently.  We are passing False to the various game piece child classes to create a red
-          piece and True to create a blue piece.  We also are storing the game_state here & also whose turn it
-          currently is."""
+        for each row (a, b, c etc) and then within each row the columns for that one.  This board is prebuilt in the
+        class so that it is built consistently.  We are passing False to the various game piece child classes to create
+        a red piece and True to create a blue piece.  We also are storing the game_state here & also whose turn it
+        currently is."""
         self._game_state = None
         self._blue_turn = True
         self._red_check = False
@@ -194,7 +196,7 @@ class JanggiGame():
         self._red_gen = square
 
     def get_game_state(self):
-        """Returns the state of the game as UNFINISHED or shows the victor.  None is used to old the unfished state
+        """Returns the state of the game as UNFINISHED or shows the victor.  None is used to old the unfinished state
         for ease of referencing in the program.  If none though, we will return UNFINISHED"""
         if self._game_state is None:
             return "UNFINISHED"
@@ -203,10 +205,10 @@ class JanggiGame():
     def is_in_check(self, player):
         """Intakes a player as either red or blue and returns if that player is n check.  To perform this, we need need
         to iterate through a player's game pieces and see if any of them have valid moves that would place them on the
-        opponent's general.  For example, if there is a solidrer being checked, we would want to check all of the potential
-        moves for that soldier and see if any of them wind up placing them on the square as the general.  If that is true
-        and the general also then does not have any moves that put them in a spot where they are not in check, then the
-        game is now checkmate."""
+        opponent's general.  For example, if there is a solider being checked, we would want to check all of the
+        potential moves for that soldier and see if any of them wind up placing them on the square as the general.  If
+        that is true and the general also then does not have any moves that put them in a spot where they are not in
+        check, then the game is now checkmate."""
         # print('Starting the check now', player)
         if type(player) != str:
             return False
@@ -246,8 +248,8 @@ class JanggiGame():
     def make_move(self, source, destination):
         """
         Allows a move to occur and outlines the logic to ensure that said move is valid.  This function performs several
-        checks to ensure that players are moving valid pieces on their turn, ensures they are not trying to capture their
-        own pieces, calls appropiate methods to ensure they are making the proper move for the piece they selected.
+        checks to ensure that players are moving valid pieces on their turn, ensures they are not trying to capture
+        their own pieces, calls appropriate methods to ensure they are making the proper move for the piece they selected
         """
         # print("Attempting", source, "==>", destination)
 
@@ -305,6 +307,14 @@ class JanggiGame():
             if (self._blue_turn and self.is_in_check('blue')) or (not self._blue_turn and self.is_in_check('red')):
                 self._board[source_col][source_row] = source_square
                 self._board[destination_col][destination_row] = destination_square
+
+                if type(source_square).__name__ == "General" and self._blue_turn:
+                    general_source = source_col + str(source_row)
+                    self.set_blue_gen(general_source)
+                elif type(source_square).__name__ == "General" and not self._blue_turn:
+                    general_source = source_col + str(source_row)
+                    self.set_red_gen(general_source)
+
                 return False
 
             # Check if this move left the opponent in check
@@ -313,15 +323,94 @@ class JanggiGame():
             else:
                 self._blue_check = self.is_in_check('blue')
 
+            # Check if checkmate.  We look only need to check for mate, if they were already in check.  To perform this
+            # check, we need to find all valid moves for a player's pieces and see if that places them not in check.
+            if self._red_check and self.is_checkmate(False):
+                self._game_state = 'BLUE_WON'
+            elif self._blue_check and self.is_checkmate(True):
+                self._game_state = 'RED_WON'
+
             self._blue_turn = not self._blue_turn
 
             return True
 
         return False
 
+    def is_checkmate(self, is_blue):
+        """This method is called at the completion of a move when a player is in check.  We will check all valid moves
+        for a player to determine if they have been checkmated.
+
+        is_blue will be True if we are checking checkmate on blue
+        is_blue will be False if we are checking checkmate on red
+
+        This is horribly inefficient O^4  :(  """
+
+        # This first set of loops is used to locate the pieces for the player
+        for col_piece in self._board.keys():
+            for row_piece in self._board[col_piece]:
+                # Store this square if it should be checked
+                source_square = self._board[col_piece][row_piece]
+                if source_square is not None and source_square.get_owner() == is_blue:
+
+                    # Iterates across the board to check for valid moves for this above piece
+                    for col_move in self._board.keys():
+                        for row_move in self._board[col_move]:
+
+                            # If this is a valid move for this piece we move to our next step
+                            if source_square.check_valid_moves(col_piece, row_piece, col_move, row_move, self):
+                                destination_square = self._board[col_move][row_move]
+
+                                self._board[col_piece][row_piece] = None
+                                self._board[col_move][row_move] = source_square
+
+                                # If the move was valid, temporarily make the move and see if in still in check
+                                # If we are still in check, we will undo the move and the check the next valid move
+                                # If we are not still in check, we undo the move and return out of the method
+
+                                if is_blue and not self.is_in_check('blue'):
+
+                                    # Reset the general location if we are checking the general
+                                    if type(source_square).__name__ == "General" and is_blue:
+                                        general_source = col_piece + str(row_piece)
+                                        self.set_blue_gen(general_source)
+                                    elif type(source_square).__name__ == "General" and not is_blue:
+                                        general_source = col_piece + str(row_piece)
+                                        self.set_red_gen(general_source)
+
+                                    self._board[col_piece][row_piece] = source_square
+                                    self._board[col_move][row_move] = destination_square
+                                    return False
+                                elif not is_blue and not self.is_in_check('red'):
+
+                                    # Reset the general location if we are checking the general
+                                    if type(source_square).__name__ == "General" and is_blue:
+                                        general_source = col_piece + str(row_piece)
+                                        self.set_blue_gen(general_source)
+                                    elif type(source_square).__name__ == "General" and not is_blue:
+                                        general_source = col_piece + str(row_piece)
+                                        self.set_red_gen(general_source)
+
+                                    self._board[col_piece][row_piece] = source_square
+                                    self._board[col_move][row_move] = destination_square
+                                    return False
+
+                                # This move did not clear checkmate, so we reset and try again
+
+                                # Reset the general location if we are checking the general
+                                if type(source_square).__name__ == "General" and is_blue:
+                                    general_source = col_piece + str(row_piece)
+                                    self.set_blue_gen(general_source)
+                                elif type(source_square).__name__ == "General" and not is_blue:
+                                    general_source = col_piece + str(row_piece)
+                                    self.set_red_gen(general_source)
+
+                                self._board[col_piece][row_piece] = source_square
+                                self._board[col_move][row_move] = destination_square
+        return True
+
     def space_open(self, col, row):
         """Checks an input coordinator to determine if a space is open.  This method is called by the make_move method
-        and relies on the coordiaate breakdown that is performed in the make_move method."""
+        and relies on the coordinate breakdown that is performed in the make_move method."""
         if self._board[col][row] is None:
             return True
         return False
@@ -361,9 +450,9 @@ class JanggiGame():
         return self._board[col][row]
 
 
-class GamePiece():
+class GamePiece:
     """A parent class to create game pieces.  This class initializes the information that is consistent across all
-    types of game poieces"""
+    types of game pieces"""
     def __init__(self, owner_blue):
         """Defines the parent class and attributes used across all pieces."""
         self._is_blue = owner_blue
@@ -471,6 +560,7 @@ class GamePiece():
 
         return False
 
+
 class Chariot(GamePiece):
     """Outlines the Chariot Game Piece"""
     def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
@@ -560,7 +650,7 @@ class Soldier(GamePiece):
         if (source_row == 2 or source_row == 3 or source_row == 8 or source_row == 9) and (source_col == 'd' or source_col == 'e' or source_col == 'f'):
             in_palace = not in_palace
 
-        if not in_palace and row_move == 1 and col_move ==1:
+        if not in_palace and row_move == 1 and col_move == 1:
             # Can only move diagonally in the palace
             return False
 
@@ -604,9 +694,9 @@ class Elephant(GamePiece):
         row_move = destination_row - source_row
 
         # col_move or row_move must be 2 and the other must be 1
-        crit1 = abs(col_move) == 3 and abs(row_move) == 2
-        crit2 = abs(col_move) == 2 and abs(row_move) == 3
-        if not crit1 and not crit2:
+        criteria1 = abs(col_move) == 3 and abs(row_move) == 2
+        criteria2 = abs(col_move) == 2 and abs(row_move) == 3
+        if not (criteria1 or criteria2):
             return False
 
         # Check if the vertical move is blocked and the diagonal spot that is crossed
@@ -614,8 +704,8 @@ class Elephant(GamePiece):
                 not game_board.space_open(layout[col1 + col_move/2], source_row + row_move/3*2):
             return False
         # Check if the horizontal move is blocked and the diagonal spot that is crossed
-        elif abs(row_move) == 2 and not game_board.space_open(layout[col1 + col_move/3], source_row) and \
-                not game_board.space_open(layout[col1 + col_move/3*2], source_row + row_move/2):
+        elif abs(row_move) == 2 and not game_board.space_open(layout[int(col1 + col_move/3)], source_row) and \
+                not game_board.space_open(layout[int(col1 + col_move/3*2)], source_row + row_move/2):
             return False
 
         return True
@@ -643,6 +733,7 @@ class Cannon(GamePiece):
         col2 = layout.index(destination_col)
         col_move = col2 - col1
 
+        # noinspection SpellCheckingInspection
         dest_square = game_board.get_square(destination_col, destination_row)
 
         if dest_square is not None and type(dest_square).__name__ == 'Cannon':
@@ -724,7 +815,7 @@ class Horse(GamePiece):
     """Outlines the Horse Game Piece"""
     def check_valid_moves(self, source_col, source_row, destination_col, destination_row, game_board):
         """Checks if the input move is valid and returns True / False based on that.
-        This piece moves similarily to the knight in western chess, in an L shape.  It can however be blocked.
+        This piece moves similarly to the knight in western chess, in an L shape.  It can however be blocked.
         It will first move 1 space vertically or horizontally towards it's destination and then 1 space
         diagonally, if it cannot make the first 1/2 of the move; it is blocked.
         """
@@ -736,9 +827,9 @@ class Horse(GamePiece):
         row_move = destination_row - source_row
 
         # col_move or row_move must be 2 and the other must be 1
-        crit1 = abs(col_move) == 2 and abs(row_move) == 1
-        crit2 = abs(col_move) == 1 and abs(row_move) == 2
-        if not crit1 and not crit2:
+        criteria1 = abs(col_move) == 2 and abs(row_move) == 1
+        criteria2 = abs(col_move) == 1 and abs(row_move) == 2
+        if not criteria1 and not criteria2:
             return False
 
         # Check if the vertical move is blocked
@@ -763,7 +854,7 @@ class Guard(GamePiece):
         """Checks if the move is valid for a Guard.  Guards can move any direction within their palace"""
         row_move = abs(source_row - destination_row)
 
-        if destination_row == 4 or destination_row ==5 or destination_row ==6 or destination_row == 7:
+        if destination_row == 4 or destination_row == 5 or destination_row == 6 or destination_row == 7:
             # The destination is outside the palace
             return False
 
@@ -799,7 +890,7 @@ class General(GamePiece):
         """Checks if the move is valid for a General.  Generals can move any direction within their palace"""
         row_move = abs(source_row - destination_row)
 
-        if destination_row == 4 or destination_row ==5 or destination_row ==6 or destination_row == 7:
+        if destination_row == 4 or destination_row == 5 or destination_row == 6 or destination_row == 7:
             # The destination is outside the palace
             return False
 
@@ -841,14 +932,17 @@ def main():
     game = JanggiGame()
     game.make_move("c7", "c6")
     game.is_in_check('blue')
-    game.make_move("c1", "d3")
+    game.make_move("a4", "a5")
     game.is_in_check('red')
-    game.make_move("b10", "d7")
+    game.make_move("a7", "b7")
     game.is_in_check('blue')
-    game.make_move("b3", "e3")
+    game.make_move("a5", "a6")
     game.is_in_check('red')
-    game.make_move("c10", "d8")
-    game.print_board()
+    game.make_move("b8", "b6")
+    game.is_in_check('blue')
+    game.make_move("a6", "a7")
+    game.is_in_check('red')
+    game.make_move("b6", "e6")
 
 
 if __name__ == "__main__":
