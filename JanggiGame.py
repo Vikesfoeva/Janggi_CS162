@@ -1,9 +1,13 @@
 #  Name: Brandon Lenz
 #  Date: 2/19/2021
-#  Description: The ancient game of Janggi!  This project outlines the logic to get started playing Janggi.
-#  https://docs.google.com/spreadsheets/d/1Lfl4IaSGqQaBYZmoD2wOrTVkXS2E7BP9v6N4p5sDPgM/edit#gid=0
+#  Description: The ancient game of Janggi!  This project outlines the logic to get started playing Janggi via the
+#  console.  Most rules have been built in, but your Generals are allowed to see each other & you cannot customize
+#  your start.
+
+# Other documents
 #  Additional planning - https://docs.google.com/spreadsheets/d/13MTVMrmjhH53qYzgSoDzK7Y_Y0INGk79RlSjAaf7e8o/edit#gid=0
-#  https://www.pychess.org/
+#  https://www.pychess.org/\
+#  FEN - rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ABNR w - - 0 1
 
 # Ways to improve this for performance
 # 1) Keep a list of all player pieces that are not captured, one for each player
@@ -56,13 +60,6 @@
 # If a player was checkmated in the previous step, then the non-checkmated player will be declared the victor.
 
 #########
-
-
-def print_error(message):
-    """A function to print out error messages to the console.  We use this function so that only 1 line needs
-    to be commented away to prevent console output"""
-    # print(message)
-    pass
 
 
 # noinspection SpellCheckingInspection
@@ -289,11 +286,9 @@ class JanggiGame:
 
         if self._blue_turn and not source_square.get_owner():
             # Can't move a red piece on blue's turn
-            print_error("Can't move a red piece on blue's turn")
             return False
         elif not self._blue_turn and source_square.get_owner():
             # Can't move a blue piece on red's turn
-            print_error("Can't move a blue piece on red's turn")
             return False
 
         if destination_square is not None:
@@ -913,6 +908,7 @@ class General(GamePiece):
         if self.invalid_diagonal_check(source_col, source_row, destination_col, destination_row):
             return False
 
+        # Update the stored general coordinates
         general_source = source_col + str(source_row)
         general_destination = destination_col + str(destination_row)
 
